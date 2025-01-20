@@ -2,7 +2,6 @@ import { CSVRowType } from "../utils/types.ts";
 import { useEffect, useRef } from "react";
 import { Aggregations } from "./Aggregations.tsx";
 import { LineChart } from "./LineChart.tsx";
-import { useWorker } from "../hooks/useWorker.ts";
 
 type PreviewProps = {
   data: CSVRowType[];
@@ -13,6 +12,20 @@ type PreviewProps = {
   move: boolean;
 };
 
+const aggregationWorker = new Worker(
+  new URL("../workers/aggregationWorker.ts", import.meta.url),
+  {
+    type: "module",
+  },
+);
+
+const lttbWorker = new Worker(
+  new URL("../workers/lttbWorker.ts", import.meta.url),
+  {
+    type: "module",
+  },
+);
+
 export const Preview = ({
   data,
   dataPoints,
@@ -21,41 +34,46 @@ export const Preview = ({
   timeInterval,
   dataPointsShift,
 }: PreviewProps) => {
-  const intervalRef = useRef<number>();
-  const aggregationWorkerRef = useWorker("../workers/aggregationWorker.ts"); // useRef<Worker>();
-  const lttbWorkerRef = useWorker("../workers/lttbWorker.ts");
+  const intervalRef = useRef<any>();
+  const aggregationWorkerRef = useRef<Worker>();
+  const lttbWorkerRef = useRef<Worker>();
+
+  useEffect(() => {
+    aggregationWorkerRef.current = aggregationWorker;
+    lttbWorkerRef.current = lttbWorker;
+  }, []);
 
   useEffect(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
-      intervalRef.current = undefined;
+      intervalRef.current = null;
     }
 
     const result = data.slice(startingIndex, startingIndex + dataPoints);
-    aggregationWorkerRef?.postMessage(result);
-    lttbWorkerRef?.postMessage(result);
+    aggregationWorkerRef.current?.postMessage(result);
+    lttbWorkerRef.current?.postMessage(result);
   }, [
     data,
     startingIndex,
     dataPoints,
     dataPointsShift,
     timeInterval,
-    lttbWorkerRef,
-    aggregationWorkerRef,
+    lttbWorkerRef.current,
+    aggregationWorkerRef.current,
   ]);
 
   useEffect(() => {
     if (move) {
       let increment = startingIndex;
-      intervalRef.current = window.setInterval(() => {
+      intervalRef.current = setInterval(() => {
         increment += dataPointsShift;
         const result = data.slice(increment, increment + dataPoints);
-        aggregationWorkerRef?.postMessage(result);
-        lttbWorkerRef?.postMessage(result);
+        aggregationWorkerRef.current?.postMessage(result);
+        lttbWorkerRef.current?.postMessage(result);
       }, timeInterval);
     } else {
-      window.clearInterval(intervalRef.current);
-      intervalRef.current = undefined;
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
   }, [
     move,
@@ -64,14 +82,14 @@ export const Preview = ({
     timeInterval,
     startingIndex,
     dataPointsShift,
-    lttbWorkerRef,
-    aggregationWorkerRef,
+    lttbWorkerRef.current,
+    aggregationWorkerRef.current,
   ]);
 
   return (
     <div className="chart-wrapper">
-      <LineChart worker={lttbWorkerRef} />
-      <Aggregations worker={aggregationWorkerRef} />
+      <LineChart worker={lttbWorkerRef.current} />
+      <Aggregations worker={aggregationWorkerRef.current} />
     </div>
   );
 };
