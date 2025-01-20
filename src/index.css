@@ -1,0 +1,22 @@
+body {
+  font-family: "Calibri Light", sans-serif;
+}
+
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+fieldset {
+  border-radius: 8px;
+  border: 1px solid slategrey;
+  margin: 0;
+}
+
+.chart-wrapper {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid slategrey;
+  min-height: 500px;
+}
