@@ -1,5 +1,11 @@
 export type CSVRowType = [number, number];
 export type LTTBReturnType = {
   sampledData: CSVRowType[];
-  marginOfError: any[];
+  marginOfError: { x: number; min: number; max: number }[];
+};
+export type AggregationsType = {
+  min: number;
+  max: number;
+  average: number;
+  variance: number;
 };

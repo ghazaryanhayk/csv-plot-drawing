@@ -6,7 +6,6 @@ import { FileUploader } from "./components/FileUploader.tsx";
 
 function App() {
   const [data, setData] = useState<CSVRowType[]>([]);
-
   const [dataPoints, setDataPoints] = useState(500);
   const [startingIndex, setStartingIndex] = useState(0);
   const [timeInterval, setTimeInterval] = useState(500);

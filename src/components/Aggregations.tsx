@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import throttle from "lodash.throttle";
+import { AggregationsType } from "../utils/types.ts";
 
 type AggregationsProps = {
   worker?: Worker;
 };
 
 export const Aggregations = ({ worker }: AggregationsProps) => {
-  const [aggregations, setAggregations] = useState<any>();
+  const [aggregations, setAggregations] = useState<AggregationsType>();
 
   useEffect(() => {
     if (!worker) {
