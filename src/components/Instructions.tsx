@@ -17,6 +17,26 @@ export const Instructions = () => {
             Once the file is uploaded, the data will be ready for processing.
           </li>
         </ol>
+        <p>You can use one of the sample CSV files:</p>
+        <ul>
+          <li>
+            <a href="/samples/data_points_1_000.csv">1000 Rows</a>
+          </li>
+          <li>
+            <a href="/samples/data_points_1_000_invalid.csv">
+              1000 Rows - Invalid
+            </a>
+          </li>
+          <li>
+            <a href="/samples/data_points_10_000.csv">10000 Rows</a>
+          </li>
+          <li>
+            <a href="/samples/data_points_100_000.csv">100000 Rows</a>
+          </li>
+          <li>
+            <a href="/samples/data_points_1_000_000.csv">1000000 Rows</a>
+          </li>
+        </ul>
       </div>
       <div>
         <p>Step 2: Configure Chart Settings</p>
