@@ -1,30 +1,20 @@
+import { useDataContext } from "../contexts/DataContext.tsx";
 import { Input } from "./Input.tsx";
 
-type ToolsProps = {
-  dataPoints: number; // N
-  startIndex: number; // S
-  timeInterval: number; // T
-  dataPointsShift: number; // P
-  move: boolean;
-  onDataPointsChange(value: number): void;
-  onStartIndexChange(value: number): void;
-  onTimeIntervalChange(value: number): void;
-  onDataPointsShiftChange(value: number): void;
-  onMoveChange(value: boolean): void;
-};
+export const Tools = () => {
+  const {
+    dataPoints,
+    setDataPoints,
+    startingIndex,
+    setStartingIndex,
+    timeInterval,
+    setTimeInterval,
+    dataPointsShift,
+    setDataPointsShift,
+    move,
+    setMove,
+  } = useDataContext();
 
-export const Tools = ({
-  dataPoints,
-  onDataPointsChange,
-  startIndex,
-  onStartIndexChange,
-  timeInterval,
-  onTimeIntervalChange,
-  dataPointsShift,
-  onDataPointsShiftChange,
-  move,
-  onMoveChange,
-}: ToolsProps) => {
   return (
     <fieldset>
       <legend>Chart Settings</legend>
@@ -32,13 +22,13 @@ export const Tools = ({
         <div style={{ flex: "1 0 auto" }}>
           <Input
             value={dataPoints}
-            onValueChange={onDataPointsChange}
+            onValueChange={setDataPoints}
             label="Number of data points (N)"
             placeholder="100"
           />
           <Input
-            value={startIndex}
-            onValueChange={onStartIndexChange}
+            value={startingIndex}
+            onValueChange={setStartingIndex}
             label="Starting Index (S)"
             placeholder="0"
           />
@@ -47,7 +37,7 @@ export const Tools = ({
         <div style={{ flex: "1 0 auto" }}>
           <Input
             value={timeInterval}
-            onValueChange={onTimeIntervalChange}
+            onValueChange={setTimeInterval}
             label="Time interval in milliseconds (T)"
             placeholder="500"
             min={16}
@@ -55,12 +45,12 @@ export const Tools = ({
 
           <Input
             value={dataPointsShift}
-            onValueChange={onDataPointsShiftChange}
+            onValueChange={setDataPointsShift}
             label="Number of data points to shift (P)"
             placeholder="10"
           />
 
-          <button onClick={() => onMoveChange(!move)}>
+          <button onClick={() => setMove(!move)}>
             {!move ? "Start" : "Stop"}
           </button>
         </div>

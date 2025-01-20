@@ -1,16 +1,7 @@
-import { CSVRowType } from "../utils/types.ts";
 import { useEffect, useRef } from "react";
 import { Aggregations } from "./Aggregations.tsx";
 import { LineChart } from "./LineChart.tsx";
-
-type PreviewProps = {
-  data: CSVRowType[];
-  startingIndex: number;
-  dataPoints: number;
-  timeInterval: number;
-  dataPointsShift: number;
-  move: boolean;
-};
+import { useDataContext } from "../contexts/DataContext.tsx";
 
 const aggregationWorker = new Worker(
   new URL("../workers/aggregationWorker.ts", import.meta.url),
@@ -26,15 +17,17 @@ const lttbWorker = new Worker(
   },
 );
 
-export const Preview = ({
-  data,
-  dataPoints,
-  startingIndex,
-  move,
-  timeInterval,
-  dataPointsShift,
-}: PreviewProps) => {
-  const intervalRef = useRef<any>();
+export const Preview = () => {
+  const {
+    data,
+    dataPoints,
+    startingIndex,
+    move,
+    timeInterval,
+    dataPointsShift,
+  } = useDataContext();
+
+  const intervalRef = useRef<number>();
   const aggregationWorkerRef = useRef<Worker>();
   const lttbWorkerRef = useRef<Worker>();
 
@@ -46,45 +39,28 @@ export const Preview = ({
   useEffect(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
-      intervalRef.current = null;
+      intervalRef.current = undefined;
     }
 
     const result = data.slice(startingIndex, startingIndex + dataPoints);
     aggregationWorkerRef.current?.postMessage(result);
     lttbWorkerRef.current?.postMessage(result);
-  }, [
-    data,
-    startingIndex,
-    dataPoints,
-    dataPointsShift,
-    timeInterval,
-    lttbWorkerRef.current,
-    aggregationWorkerRef.current,
-  ]);
+  }, [data, startingIndex, dataPoints, dataPointsShift, timeInterval]);
 
   useEffect(() => {
     if (move) {
       let increment = startingIndex;
-      intervalRef.current = setInterval(() => {
+      intervalRef.current = window.setInterval(() => {
         increment += dataPointsShift;
         const result = data.slice(increment, increment + dataPoints);
         aggregationWorkerRef.current?.postMessage(result);
         lttbWorkerRef.current?.postMessage(result);
       }, timeInterval);
     } else {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = undefined;
     }
-  }, [
-    move,
-    data,
-    dataPoints,
-    timeInterval,
-    startingIndex,
-    dataPointsShift,
-    lttbWorkerRef.current,
-    aggregationWorkerRef.current,
-  ]);
+  }, [move, data, dataPoints, timeInterval, startingIndex, dataPointsShift]);
 
   return (
     <div className="chart-wrapper">

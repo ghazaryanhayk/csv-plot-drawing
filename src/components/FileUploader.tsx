@@ -1,17 +1,12 @@
-import Papa from "papaparse";
+import Papa, { ParseResult } from "papaparse";
 import { ChangeEvent, useState } from "react";
+import { useDataContext } from "../contexts/DataContext.tsx";
 import { CSVRowType } from "../utils/types.ts";
 
-type FileUploaderProps = {
-  onFileUpload(data: CSVRowType[]): void;
-  disabled?: boolean;
-};
-
-export const FileUploader = ({
-  onFileUpload,
-  disabled = false,
-}: FileUploaderProps) => {
+export const FileUploader = () => {
+  const { setData, move } = useDataContext();
   const [loading, setLoading] = useState(false);
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
@@ -21,12 +16,20 @@ export const FileUploader = ({
 
     setLoading(true);
 
-    Papa.parse<CSVRowType>(file, {
+    Papa.parse(file, {
       worker: true,
       fastMode: true,
       dynamicTyping: true,
-      complete: (results) => {
-        onFileUpload(results.data);
+      complete: (results: ParseResult<CSVRowType>) => {
+        const isValid = results.data.every((row) => {
+          return typeof row[0] === "number" && typeof row[1] === "number";
+        });
+        if (isValid) {
+          setData(results.data);
+        } else {
+          console.error("Invalid CSV data");
+        }
+
         setLoading(false);
       },
     });
@@ -39,7 +42,7 @@ export const FileUploader = ({
         type="file"
         accept=".csv"
         onChange={handleFileChange}
-        disabled={disabled}
+        disabled={move}
       />
       {loading && "Loading..."}
     </fieldset>
