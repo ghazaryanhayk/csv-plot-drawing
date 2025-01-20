@@ -20,6 +20,7 @@ export const FileUploader = () => {
       worker: true,
       fastMode: true,
       dynamicTyping: true,
+      skipEmptyLines: true,
       complete: (results: ParseResult<CSVRowType>) => {
         const isValid = results.data.every((row) => {
           return typeof row[0] === "number" && typeof row[1] === "number";

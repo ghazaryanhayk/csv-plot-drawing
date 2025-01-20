@@ -23,6 +23,7 @@ export const Preview = () => {
     dataPoints,
     startingIndex,
     move,
+    setMove,
     timeInterval,
     dataPointsShift,
   } = useDataContext();
@@ -52,6 +53,14 @@ export const Preview = () => {
       let increment = startingIndex;
       intervalRef.current = window.setInterval(() => {
         increment += dataPointsShift;
+
+        if (increment + dataPoints > data.length) {
+          window.clearInterval(intervalRef.current);
+          setMove(false);
+          intervalRef.current = undefined;
+          return;
+        }
+
         const result = data.slice(increment, increment + dataPoints);
         aggregationWorkerRef.current?.postMessage(result);
         lttbWorkerRef.current?.postMessage(result);
