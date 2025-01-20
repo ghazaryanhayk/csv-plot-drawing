@@ -24,7 +24,15 @@ export const Preview = () => {
     lttbWorkerRef.current?.postMessage(result);
   };
 
+  const cleanupInterval = () => {
+    window.clearInterval(intervalRef.current);
+    intervalRef.current = undefined;
+  };
+
   useEffect(() => {
+    if (intervalRef.current) {
+      cleanupInterval();
+    }
     processData(startingIndex);
   }, [data, startingIndex, dataPoints, dataPointsShift, timeInterval]);
 
@@ -35,9 +43,8 @@ export const Preview = () => {
         increment += dataPointsShift;
 
         if (increment + dataPoints > data.length) {
-          window.clearInterval(intervalRef.current);
           setMove(false);
-          intervalRef.current = undefined;
+          cleanupInterval();
           return;
         }
 
