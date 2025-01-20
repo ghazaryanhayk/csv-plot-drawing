@@ -2,20 +2,7 @@ import { useEffect, useRef } from "react";
 import { Aggregations } from "./Aggregations.tsx";
 import { LineChart } from "./LineChart.tsx";
 import { useDataContext } from "../contexts/DataContext.tsx";
-
-const aggregationWorker = new Worker(
-  new URL("../workers/aggregationWorker.ts", import.meta.url),
-  {
-    type: "module",
-  },
-);
-
-const lttbWorker = new Worker(
-  new URL("../workers/lttbWorker.ts", import.meta.url),
-  {
-    type: "module",
-  },
-);
+import { useWorkers } from "../hooks/useWorkers.ts";
 
 export const Preview = () => {
   const {
@@ -28,24 +15,17 @@ export const Preview = () => {
     dataPointsShift,
   } = useDataContext();
 
+  const { lttbWorkerRef, aggregationWorkerRef } = useWorkers();
   const intervalRef = useRef<number>();
-  const aggregationWorkerRef = useRef<Worker>();
-  const lttbWorkerRef = useRef<Worker>();
 
-  useEffect(() => {
-    aggregationWorkerRef.current = aggregationWorker;
-    lttbWorkerRef.current = lttbWorker;
-  }, []);
-
-  useEffect(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = undefined;
-    }
-
-    const result = data.slice(startingIndex, startingIndex + dataPoints);
+  const processData = (startIndex: number) => {
+    const result = data.slice(startIndex, startIndex + dataPoints);
     aggregationWorkerRef.current?.postMessage(result);
     lttbWorkerRef.current?.postMessage(result);
+  };
+
+  useEffect(() => {
+    processData(startingIndex);
   }, [data, startingIndex, dataPoints, dataPointsShift, timeInterval]);
 
   useEffect(() => {
@@ -61,9 +41,7 @@ export const Preview = () => {
           return;
         }
 
-        const result = data.slice(increment, increment + dataPoints);
-        aggregationWorkerRef.current?.postMessage(result);
-        lttbWorkerRef.current?.postMessage(result);
+        processData(increment);
       }, timeInterval);
     } else {
       window.clearInterval(intervalRef.current);

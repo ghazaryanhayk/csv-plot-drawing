@@ -18,11 +18,9 @@ export const Input = ({
 }: InputProps) => {
   const id = useId();
 
-  const onValueChangeDebounced = debounce(onValueChange, 200);
-
-  const handleValueChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onValueChangeDebounced(Number(e.target.value));
-  };
+  const handleValueChange = debounce((e: ChangeEvent<HTMLInputElement>) => {
+    onValueChange(Number(e.target.value));
+  }, 200);
 
   return (
     <div>
