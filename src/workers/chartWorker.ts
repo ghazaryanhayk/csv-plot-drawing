@@ -1,7 +1,7 @@
 import { largestTriangleThreeBuckets } from "../utils/downsample/lttb.ts";
 import { LTTBReturnType } from "../utils/types.ts";
 import { collectDataFromIdb } from "../utils/helpers/collectDataFromIdb.ts";
-import { cacheData } from "../db/db.ts";
+import { cacheData, clearCache } from "../db/db.ts";
 
 export {};
 
@@ -91,8 +91,10 @@ self.onmessage = async function (
       break;
     }
     case "reset": {
+      clearCache();
       cache.clear();
       current = undefined;
+      self.postMessage({ type: "reset:complete" });
       break;
     }
     default: {

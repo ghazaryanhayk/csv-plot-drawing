@@ -22,11 +22,6 @@ export const Tools = () => {
   } = useDataContext();
 
   useEffect(() => {
-    chartWorker?.postMessage({ type: "cache" });
-    aggregationsWorker?.postMessage({ type: "cache" });
-  }, []);
-
-  useEffect(() => {
     aggregationsWorker?.postMessage({
       type: "init",
       startingIndex,

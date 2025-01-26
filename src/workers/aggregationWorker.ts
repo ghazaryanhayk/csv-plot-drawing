@@ -1,6 +1,6 @@
 import { collectDataFromIdb } from "../utils/helpers/collectDataFromIdb.ts";
 import { initAggregations } from "./aggregations/initAggregations.ts";
-import { cacheData } from "../db/db.ts";
+import { cacheData, clearCache } from "../db/db.ts";
 import { CSVRowType } from "../utils/types.ts";
 import { updateAggregations } from "./aggregations/updateAggregations.ts";
 import { minimumsAndMaximums } from "./aggregations/minimumsAndMaximums.ts";
@@ -135,6 +135,8 @@ self.onmessage = async function (
     }
     case "reset": {
       _cache = null;
+      clearCache();
+      self.postMessage({ type: "reset:complete" });
       break;
     }
     default: {

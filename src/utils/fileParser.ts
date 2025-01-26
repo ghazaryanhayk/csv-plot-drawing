@@ -9,9 +9,7 @@ const chartWorker = workerRegister("chart");
 export async function parseFileByRowCount(file: File, rowsPerChunk: number) {
   const rowBuffer: CSVRowType[] = []; // Buffer to hold rows until chunk size is met
   let chunkStart = 0;
-
-  aggregationsWorker?.postMessage({ type: "reset" });
-  chartWorker?.postMessage({ type: "reset" });
+  let chunkEnd: number;
 
   return new Promise((resolve) => {
     Papa.parse(file, {
@@ -30,15 +28,20 @@ export async function parseFileByRowCount(file: File, rowsPerChunk: number) {
         while (rowBuffer.length >= rowsPerChunk) {
           const chunk = rowBuffer.splice(0, rowsPerChunk); // Remove rows for this chunk
 
-          const chunkEnd = chunkStart + rowsPerChunk - 1;
+          chunkEnd = chunkStart + rowsPerChunk - 1;
 
           await set(`${chunkStart}_${chunkEnd}`, chunk);
           chunkStart = chunkEnd + 1;
         }
       },
-      complete: function () {
-        aggregationsWorker?.postMessage({ type: "cache" });
-        chartWorker?.postMessage({ type: "cache" });
+      complete: async function () {
+        if (rowBuffer.length) {
+          chunkEnd = chunkStart + rowsPerChunk - 1;
+          await set(`${chunkStart}_${chunkEnd}`, rowBuffer);
+        }
+
+        aggregationsWorker?.postMessage({ type: "reset" });
+        chartWorker?.postMessage({ type: "reset" });
 
         console.log("Parsing complete.");
         resolve(true);

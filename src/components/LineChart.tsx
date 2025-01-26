@@ -52,6 +52,11 @@ export const LineChart = ({ worker }: LineChartProps) => {
         return;
       }
 
+      if (event.data.type === "reset:complete") {
+        worker.postMessage({ type: "cache" });
+        return;
+      }
+
       if (event.data?.type === "cache:complete") {
         worker?.postMessage({
           type: "init",

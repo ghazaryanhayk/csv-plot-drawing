@@ -38,3 +38,7 @@ export async function cacheData() {
     get(key);
   }
 }
+
+export function clearCache() {
+  dbCache.clear();
+}

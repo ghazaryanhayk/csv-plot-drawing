@@ -17,6 +17,11 @@ export const Aggregations = ({ worker }: AggregationsProps) => {
       return;
     }
     worker.onmessage = throttle((event) => {
+      if (event.data.type === "reset:complete") {
+        worker.postMessage({ type: "cache" });
+        return;
+      }
+
       if (event.data.type === "cache:complete") {
         worker.postMessage({
           type: "init",
