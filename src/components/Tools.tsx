@@ -1,6 +1,6 @@
 import { useDataContext } from "../contexts/DataContext.tsx";
 import { Input } from "./Input.tsx";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { workerRegister } from "../workers/workerRegister.ts";
 
 const chartWorker = workerRegister("chart");
@@ -21,7 +21,7 @@ export const Tools = () => {
     loading,
   } = useDataContext();
 
-  useEffect(() => {
+  const initWorkers = useCallback(() => {
     aggregationsWorker?.postMessage({
       type: "init",
       startingIndex,
@@ -35,6 +35,19 @@ export const Tools = () => {
       dataPointsShift,
     });
   }, [dataPoints, dataPointsShift, startingIndex]);
+
+  const handleStartClick = () => {
+    if (move) {
+      setMove(false);
+    } else {
+      initWorkers();
+      setMove(true);
+    }
+  };
+
+  useEffect(() => {
+    initWorkers();
+  }, [dataPoints, dataPointsShift, initWorkers, startingIndex]);
 
   return (
     <fieldset>
@@ -75,8 +88,12 @@ export const Tools = () => {
             disabled={loading}
           />
 
-          <button onClick={() => setMove(!move)} disabled={loading}>
+          <button onClick={handleStartClick} disabled={loading}>
             {!move ? "Start" : "Stop"}
+          </button>
+
+          <button onClick={initWorkers} disabled={loading}>
+            Reset
           </button>
         </div>
       </div>
