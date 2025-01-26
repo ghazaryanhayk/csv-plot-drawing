@@ -3,6 +3,7 @@ import { initAggregations } from "./aggregations/initAggregations.ts";
 import { cacheData } from "../db/db.ts";
 import { CSVRowType } from "../utils/types.ts";
 import { updateAggregations } from "./aggregations/updateAggregations.ts";
+import { minimumsAndMaximums } from "./aggregations/minimumsAndMaximums.ts";
 
 export {};
 
@@ -10,15 +11,17 @@ export type AggregationCacheType = {
   count: number;
   sum: number;
   sumOfSquares: number;
-  min: number;
-  max: number;
   average: number;
   variance: number;
+  min?: number;
+  max?: number;
 };
 
 export type AggregationsCacheType = {
   aggregations: AggregationCacheType;
   data: CSVRowType[];
+  minimums: number[];
+  maximums: number[];
 };
 
 let _cache: AggregationsCacheType = {
@@ -26,12 +29,12 @@ let _cache: AggregationsCacheType = {
     count: 0,
     sum: 0,
     sumOfSquares: 0,
-    min: Infinity,
-    max: -Infinity,
     average: 0,
     variance: 0,
   },
   data: [],
+  minimums: [],
+  maximums: [],
 };
 
 async function* nextAggregationsGenV2(
@@ -47,28 +50,33 @@ async function* nextAggregationsGenV2(
       dataPointsShift,
     );
 
-    const removedData = _cache.data.slice(0, addedData.length);
+    const removedData = _cache.data.splice(0, addedData.length);
 
     if (addedData.length === 0) {
       return;
     }
-    _cache.data.slice(addedData.length);
+
     for (let i = 0; i < addedData.length; i++) {
       _cache.data.push(addedData[i]);
     }
 
-    const newAggregations = updateAggregations(
+    _cache.aggregations = updateAggregations(
       _cache.aggregations,
       addedData,
       removedData,
-      _cache.data,
     );
-
-    _cache.aggregations = newAggregations;
+    const { min, max, minimums, maximums } = minimumsAndMaximums(
+      _cache,
+      addedData,
+    );
+    _cache.aggregations.min = min;
+    _cache.aggregations.max = max;
+    _cache.minimums = minimums;
+    _cache.maximums = maximums;
 
     additionalDataStart += dataPointsShift;
 
-    yield newAggregations;
+    yield _cache.aggregations;
   }
 }
 
@@ -89,9 +97,9 @@ self.onmessage = async function (
   switch (type) {
     case "init": {
       _cache = await initAggregations({
-        cache: _cache,
         dataPoints,
         startingIndex,
+        dataPointsShift,
       });
 
       nextAggregationsV2 = nextAggregationsGenV2(

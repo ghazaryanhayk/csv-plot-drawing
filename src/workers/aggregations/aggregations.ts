@@ -5,16 +5,8 @@ export function aggregations(values: CSVRowType[]): AggregationCacheType {
   const count = values.length;
   let sum = 0;
   let sumOfSquares = 0;
-  let min = Infinity;
-  let max = -Infinity;
 
   for (let i = 0; i < values.length; i++) {
-    if (values[i][1] < min) {
-      min = values[i][1];
-    }
-    if (values[i][1] > max) {
-      max = values[i][1];
-    }
     sum += values[i][1];
     sumOfSquares += Math.pow(values[i][1], 2);
   }
@@ -26,8 +18,6 @@ export function aggregations(values: CSVRowType[]): AggregationCacheType {
     count,
     sum,
     sumOfSquares,
-    min,
-    max,
     average,
     variance,
   };
