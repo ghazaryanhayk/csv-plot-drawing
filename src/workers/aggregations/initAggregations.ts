@@ -22,16 +22,17 @@ export async function initAggregations({
   const maximums: number[] = [];
 
   chunks.forEach((chunk) => {
-    minimums.push(minimum(chunk));
-    maximums.push(maximum(chunk));
+    const values = chunk.map(([, v]) => v);
+    minimums.push(minimum(values));
+    maximums.push(maximum(values));
   });
 
   return {
     data: data,
     aggregations: {
       ...aggregations(data),
-      min: Math.min(...minimums),
-      max: Math.max(...maximums),
+      min: minimum(minimums),
+      max: maximum(maximums),
     },
     minimums,
     maximums,

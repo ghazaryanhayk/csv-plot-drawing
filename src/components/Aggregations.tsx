@@ -1,7 +1,7 @@
-import { AggregationCacheType } from "../workers/aggregationWorker.ts";
 import { useEffect, useState } from "react";
 import throttle from "lodash.throttle";
 import { useDataContext } from "../contexts/DataContext.tsx";
+import { AggregationCacheType } from "../workers/aggregationWorker.ts";
 
 type AggregationsProps = {
   worker?: Worker;

@@ -10,6 +10,9 @@ export async function parseFileByRowCount(file: File, rowsPerChunk: number) {
   const rowBuffer: CSVRowType[] = []; // Buffer to hold rows until chunk size is met
   let chunkStart = 0;
 
+  aggregationsWorker?.postMessage({ type: "reset" });
+  chartWorker?.postMessage({ type: "reset" });
+
   return new Promise((resolve) => {
     Papa.parse(file, {
       worker: true,

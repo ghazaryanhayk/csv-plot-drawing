@@ -2,7 +2,7 @@ import { Tools } from "./components/Tools.tsx";
 import { FileUploader } from "./components/FileUploader.tsx";
 import { DataProvider } from "./contexts/DataContext.tsx";
 import { Instructions } from "./components/Instructions.tsx";
-import { PreviewV2 } from "./components/PreviewV2.tsx";
+import { Preview } from "./components/Preview.tsx";
 
 function App() {
   return (
@@ -10,7 +10,7 @@ function App() {
       <div className="app">
         <FileUploader />
         <Tools />
-        <PreviewV2 />
+        <Preview />
         <Instructions />
       </div>
     </DataProvider>

@@ -24,7 +24,7 @@ export type AggregationsCacheType = {
   maximums: number[];
 };
 
-let _cache: AggregationsCacheType = {
+const cacheInitialValue: AggregationsCacheType = {
   aggregations: {
     count: 0,
     sum: 0,
@@ -37,6 +37,8 @@ let _cache: AggregationsCacheType = {
   maximums: [],
 };
 
+let _cache: AggregationsCacheType | null = null;
+
 async function* nextAggregationsGenV2(
   startingIndex: number,
   dataPoints: number,
@@ -44,7 +46,7 @@ async function* nextAggregationsGenV2(
 ) {
   let additionalDataStart = startingIndex + dataPoints;
 
-  while (true) {
+  while (_cache) {
     const addedData = await collectDataFromIdb(
       additionalDataStart,
       dataPointsShift,
@@ -66,7 +68,12 @@ async function* nextAggregationsGenV2(
       removedData,
     );
     const { min, max, minimums, maximums } = minimumsAndMaximums(
-      _cache,
+      {
+        minimums: _cache.minimums,
+        maximums: _cache.maximums,
+        prevMin: _cache.aggregations.min ?? Infinity,
+        prevMax: _cache.aggregations.max ?? -Infinity,
+      },
       addedData,
     );
     _cache.aggregations.min = min;
@@ -84,7 +91,7 @@ let nextAggregationsV2: AsyncGenerator;
 
 self.onmessage = async function (
   event: MessageEvent<{
-    type: "init" | "cache" | "next";
+    type: "init" | "cache" | "next" | "reset";
     startingIndex: number;
     dataPoints: number;
     dataPointsShift: number;
@@ -113,6 +120,7 @@ self.onmessage = async function (
     }
     case "cache": {
       await cacheData();
+      _cache = cacheInitialValue;
       self.postMessage({ type: "cache:complete" });
       break;
     }
@@ -123,6 +131,10 @@ self.onmessage = async function (
         type: "next:complete",
         data: result.done ? null : result.value,
       });
+      break;
+    }
+    case "reset": {
+      _cache = null;
       break;
     }
     default: {

@@ -50,7 +50,7 @@ let nextChart: AsyncGenerator;
 
 self.onmessage = async function (
   event: MessageEvent<{
-    type: "init" | "cache" | "next";
+    type: "init" | "cache" | "next" | "reset";
     startingIndex: number;
     dataPoints: number;
     dataPointsShift: number;
@@ -88,6 +88,11 @@ self.onmessage = async function (
         type: "next:complete",
         data: result.done ? null : result.value,
       });
+      break;
+    }
+    case "reset": {
+      cache.clear();
+      current = undefined;
       break;
     }
     default: {
