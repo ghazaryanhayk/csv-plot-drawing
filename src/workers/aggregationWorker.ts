@@ -1,8 +1,8 @@
 import { collectDataFromIdb } from "../utils/helpers/collectDataFromIdb.ts";
 import { initAggregations } from "./aggregations/initAggregations.ts";
 import { cacheData } from "../db/db.ts";
-import { updateAggregations } from "./aggregations/aggregations.ts";
 import { CSVRowType } from "../utils/types.ts";
+import { updateAggregations } from "./aggregations/updateAggregations.ts";
 
 export {};
 
@@ -42,7 +42,6 @@ async function* nextAggregationsGenV2(
   let additionalDataStart = startingIndex + dataPoints;
 
   while (true) {
-    performance.mark("nextAggregationsGenV2:start");
     const addedData = await collectDataFromIdb(
       additionalDataStart,
       dataPointsShift,
@@ -53,17 +52,10 @@ async function* nextAggregationsGenV2(
     if (addedData.length === 0) {
       return;
     }
-    performance.mark("nextAggregationsGenV2:newData:start");
     _cache.data.slice(addedData.length);
     for (let i = 0; i < addedData.length; i++) {
       _cache.data.push(addedData[i]);
     }
-    performance.mark("nextAggregationsGenV2:newData:end");
-    performance.measure(
-      "nextAggregationsGenV2:newData",
-      "nextAggregationsGenV2:newData:start",
-      "nextAggregationsGenV2:newData:end",
-    );
 
     const newAggregations = updateAggregations(
       _cache.aggregations,
@@ -75,12 +67,7 @@ async function* nextAggregationsGenV2(
     _cache.aggregations = newAggregations;
 
     additionalDataStart += dataPointsShift;
-    performance.mark("nextAggregationsGenV2:end");
-    performance.measure(
-      "nextAggregationsGenV2",
-      "nextAggregationsGenV2:start",
-      "nextAggregationsGenV2:end",
-    );
+
     yield newAggregations;
   }
 }

@@ -1,5 +1,5 @@
 import TestWorker from "./chartWorker.ts?worker";
-import AggregationsWorker from "./aggregationWorkerV2.ts?worker";
+import AggregationsWorker from "./aggregationWorker.ts?worker";
 
 type WorkerTypes = "test" | "chart" | "aggregations";
 

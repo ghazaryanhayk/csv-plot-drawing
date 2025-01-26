@@ -1,5 +1,5 @@
 import { collectDataFromIdb } from "../../utils/helpers/collectDataFromIdb.ts";
-import { AggregationsCacheType } from "../aggregationWorkerV2.ts";
+import { AggregationsCacheType } from "../aggregationWorker.ts";
 import { aggregations } from "./aggregations.ts";
 
 export async function initAggregations({

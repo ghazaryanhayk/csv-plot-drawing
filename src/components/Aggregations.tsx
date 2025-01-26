@@ -1,4 +1,4 @@
-import { AggregationCacheType } from "../workers/aggregationWorkerV2.ts";
+import { AggregationCacheType } from "../workers/aggregationWorker.ts";
 import { useEffect, useState } from "react";
 import throttle from "lodash.throttle";
 import { useDataContext } from "../contexts/DataContext.tsx";
