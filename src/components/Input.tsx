@@ -7,6 +7,7 @@ type InputProps = {
   label?: string;
   placeholder?: string;
   min?: number;
+  disabled?: boolean;
 };
 
 export const Input = ({
@@ -15,6 +16,7 @@ export const Input = ({
   label,
   placeholder,
   min = 0,
+  disabled = false,
 }: InputProps) => {
   const id = useId();
 
@@ -33,6 +35,7 @@ export const Input = ({
         placeholder={placeholder}
         defaultValue={value}
         onChange={handleValueChange}
+        disabled={disabled}
       />
     </div>
   );

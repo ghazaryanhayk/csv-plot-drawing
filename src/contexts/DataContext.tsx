@@ -14,6 +14,8 @@ type DataContextType = {
   setDataPointsShift: (dataPointsShift: number) => void;
   move: boolean;
   setMove: (move: boolean) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
 };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -25,6 +27,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [timeInterval, setTimeInterval] = useState(500);
   const [dataPointsShift, setDataPointsShift] = useState(10);
   const [move, setMove] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   return (
     <DataContext.Provider
@@ -41,6 +44,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         setDataPointsShift,
         move,
         setMove,
+        loading,
+        setLoading,
       }}
     >
       {children}

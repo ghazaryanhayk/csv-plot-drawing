@@ -1,13 +1,13 @@
-import Papa, { ParseResult } from "papaparse";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent } from "react";
 import { useDataContext } from "../contexts/DataContext.tsx";
-import { CSVRowType } from "../utils/types.ts";
+import { parseFileByRowCount } from "../utils/fileParser.ts";
+import { clear } from "../db/db.ts";
+import { DB_BATCH_SIZE } from "../utils/constants.ts";
 
 export const FileUploader = () => {
-  const { setData, move } = useDataContext();
-  const [loading, setLoading] = useState(false);
+  const { move, loading, setLoading } = useDataContext();
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (!file) {
@@ -15,37 +15,29 @@ export const FileUploader = () => {
     }
 
     setLoading(true);
-
-    Papa.parse(file, {
-      worker: true,
-      fastMode: true,
-      dynamicTyping: true,
-      skipEmptyLines: true,
-      complete: (results: ParseResult<CSVRowType>) => {
-        const isValid = results.data.every((row) => {
-          return typeof row[0] === "number" && typeof row[1] === "number";
-        });
-        if (isValid) {
-          setData(results.data);
-        } else {
-          console.error("Invalid CSV data");
-        }
-
-        setLoading(false);
-      },
-    });
+    await clear();
+    await parseFileByRowCount(file, DB_BATCH_SIZE);
+    setLoading(false);
   };
 
   return (
     <fieldset>
       <legend>Upload CSV file</legend>
-      <input
-        type="file"
-        accept=".csv"
-        onChange={handleFileChange}
-        disabled={move}
-      />
-      {loading && "Loading..."}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleFileChange}
+          disabled={move}
+        />
+        {loading && "Loading..."}
+      </div>
     </fieldset>
   );
 };
